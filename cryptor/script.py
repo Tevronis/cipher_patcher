@@ -16,7 +16,7 @@ else:
 f = bytearray(open(filename, 'rb').read())
 
 for idx in range(addr, addr + size + 1):
-    # print(str(hex(f[idx]))[2:], end=' ')
+    print(str(hex(f[idx]))[2:], end=' ')
     f[idx] ^= key
 # print()
 with open('crypted.exe', 'wb') as out:
