@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         printf("Ex: ./<prog_name> <password> <decrypt_key>\n");
 	return -1;
     }
-
+    printf("%p\n", &ff);
     decrypt(ff, atoi(argv[2]));
 
     if (argc > 1) {
