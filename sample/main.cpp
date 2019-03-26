@@ -45,19 +45,22 @@ void decrypt(void *addr, int key, int func_len) {
     for (unsigned char *pos = start_instruction; pos < start_instruction + func_len; ++pos) {
         // printf("%u ", (unsigned int)*pos);
         *pos ^= key;
+        // printf("%u ", (unsigned int)*pos);
     }
     printf("Decrypt done!\n");
 }
 
 int main(int argc, char *argv[]) {
     void *ff = (void*)check_secret;
-    if (argc < 4) {
-        printf("Ex: ./<prog_name> <password> <decrypt_key> <len_of_decrypted_function>\n");
+    int key = 9;
+    int func_size = 59;
+    if (argc < 2) {
+        printf("Ex: ./<prog_name> <password>\n");
         return -1;
     }
 
-    decrypt(ff, atoi(argv[2]), atoi(argv[3]));
-
+    decrypt(ff, key, func_size);
+    // printf("%s\n", "I am here!");
     if (argc > 1) {
         if (check_secret(argv[1])) {
             printf("password correct\n");

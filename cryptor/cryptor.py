@@ -14,6 +14,16 @@ Config = collections.namedtuple('Config', 'algorithm acm_payload filename key')
 DIR_PATH = 'cryptor/'
 
 
+def random_gen():
+    x0 = 7
+    x1 = 123
+    m = 255
+    while True:
+        x0, x1 = x1, (x0 + x1) % m
+        print 'Genned: ', x1
+        yield x1
+
+
 def xor_crypt(section, key):
     section.xor_data(key)
 
@@ -21,18 +31,18 @@ def xor_crypt(section, key):
 def xor_gamma_crypt(section, key):
     data = section.get_data()
     new_data = ""
-    gen = itertools.cycle(key)
-    for b in data:
+    gen = random_gen()
+    for b in data[::-1]:
         if b:
-            new_data += chr(ord(b) ^ int(next(gen)))
+            # print 'before: ', b
+            value = ord(b) ^ int(next(gen))
+            print hex(value)
+            new_data += chr(value)
+            # print 'after: ', value
         else:
             new_data += "\x00"
 
     section.pe.data_replace(section.PointerToRawData, new_data)
-
-
-def print_pe_info(pe):
-    pass
 
 
 def run(config):
@@ -46,7 +56,7 @@ def run(config):
     pe.data_copy(pe.sections[0].PointerToRawData, pe.sections[-1].PointerToRawData, 512)
 
     # simple payload. just execute jump in last section
-    asm = Template(open('{}pack.tpl.asm'.format(DIR_PATH), 'r').read()).generate(
+    asm = Template(open('{}xor1.asm'.format(DIR_PATH), 'r').read()).generate(
         go=pe.OPTIONAL_HEADER.ImageBase + pe.sections[-1].VirtualAddress + 512,
     )
 
@@ -82,8 +92,8 @@ def run(config):
 
 
 if __name__ == '__main__':
-    xor_config = Config(xor_crypt, '{}copy.tpl.asm'.format(DIR_PATH), sys.argv[-2], int(sys.argv[-1]))
-    xor_gamma_config = Config(xor_gamma_crypt, '{}gamma_xor.acm'.format(DIR_PATH), sys.argv[-2], int(sys.argv[-1]))
+    xor_config = Config(xor_crypt, '{}xor2.asm'.format(DIR_PATH), sys.argv[-2], int(sys.argv[-1]))
+    xor_gamma_config = Config(xor_gamma_crypt, '{}xor_gamma2.asm'.format(DIR_PATH), sys.argv[-2], int(sys.argv[-1]))
     if '-x' in sys.argv:
         run(xor_config)
     elif '-gx' in sys.argv:
